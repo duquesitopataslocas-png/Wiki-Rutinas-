@@ -1,0 +1,20 @@
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+body {
+  margin: 0;
+}
+
+code {
+  font-family: 'Source Code Pro', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo,
+    monospace;
+}

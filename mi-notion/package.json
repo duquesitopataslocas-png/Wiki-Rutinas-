@@ -1,0 +1,35 @@
+{
+  "name": "mi-notion",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "node ./scripts/contentlayer-build.mjs build && next build",
+    "start": "next start",
+    "typecheck": "node ./scripts/contentlayer-build.mjs build && tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "content": "node ./scripts/contentlayer-build.mjs build"
+  },
+  "dependencies": {
+    "@contentlayer/client": "^0.3.4",
+    "clsx": "^2.1.0",
+    "contentlayer": "^0.3.4",
+    "gray-matter": "^4.0.3",
+    "next": "^13.5.6",
+    "next-contentlayer": "^0.3.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "@types/react": "^18.2.79",
+    "@typescript-eslint/eslint-plugin": "^7.11.0",
+    "@typescript-eslint/parser": "^7.11.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.2",
+    "typescript": "5.5.4"
+  }
+}
