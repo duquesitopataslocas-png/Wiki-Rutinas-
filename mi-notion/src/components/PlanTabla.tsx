@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { ChangeEvent, CSSProperties } from 'react'
 
 export type Ejercicio = {
@@ -17,7 +17,6 @@ interface PlanTablaProps {
 }
 
 type EjercicioEstado = Ejercicio & { hecha: boolean }
-
 type EjercicioCampo = keyof Ejercicio
 
 function crearEstadoInicial(ejercicios: Ejercicio[]): EjercicioEstado[] {
@@ -25,15 +24,13 @@ function crearEstadoInicial(ejercicios: Ejercicio[]): EjercicioEstado[] {
 }
 
 export function PlanTabla({ ejercicios }: PlanTablaProps): JSX.Element {
-  const initialRows = useRef<Ejercicio[]>([])
-  const [datos, setDatos] = useState<EjercicioEstado[]>(() => {
-    initialRows.current = ejercicios.map((item) => ({ ...item }))
-    return crearEstadoInicial(initialRows.current)
-  })
+  const [datos, setDatos] = useState<EjercicioEstado[]>(
+    () => crearEstadoInicial(ejercicios)
+  )
 
+  // Re-sincroniza el estado si cambia la lista de ejercicios
   useEffect(() => {
-    initialRows.current = ejercicios.map((item) => ({ ...item }))
-    setDatos(crearEstadoInicial(initialRows.current))
+    setDatos(crearEstadoInicial(ejercicios))
   }, [ejercicios])
 
   const headers = useMemo(
@@ -41,32 +38,21 @@ export function PlanTabla({ ejercicios }: PlanTablaProps): JSX.Element {
     []
   )
 
-  const actualizarDato = (index: number, campo: EjercicioCampo, valor: string | number) => {
+  const actualizarDato = <K extends EjercicioCampo>(
+    index: number,
+    campo: K,
+    valor: Ejercicio[K]
+  ) => {
     setDatos((prev) =>
-      prev.map((row, i) => {
-        if (i !== index) return row
-
-        if (typeof row[campo] === 'number') {
-          const numeric = typeof valor === 'number' ? valor : Number(valor)
-          return Number.isNaN(numeric) ? row : { ...row, [campo]: numeric }
-        }
-
-        return {
-          ...row,
-          [campo]: valor
-        }
-      })
+      prev.map((row, i) => (i === index ? { ...row, [campo]: valor } : row))
     )
   }
 
-  const manejarCambioNumero = (
-    index: number,
-    campo: Extract<EjercicioCampo, 'series' | 'reps'>
-  ) =>
+  const manejarCambioNumero =
+    (index: number, campo: Extract<EjercicioCampo, 'series' | 'reps'>) =>
     (event: ChangeEvent<HTMLInputElement>) => {
-      const value = event.currentTarget.value
-      const numeric = Number(value)
-      actualizarDato(index, campo, Number.isNaN(numeric) ? 0 : numeric)
+      const value = Number(event.currentTarget.value)
+      actualizarDato(index, campo, (Number.isNaN(value) ? 0 : value) as Ejercicio[typeof campo])
     }
 
   const alternarHecha = (index: number) => {
@@ -76,7 +62,7 @@ export function PlanTabla({ ejercicios }: PlanTablaProps): JSX.Element {
   }
 
   const resetear = () => {
-    setDatos(crearEstadoInicial(initialRows.current))
+    setDatos(crearEstadoInicial(ejercicios))
   }
 
   const resumen = useMemo(
@@ -103,11 +89,7 @@ export function PlanTabla({ ejercicios }: PlanTablaProps): JSX.Element {
         <thead>
           <tr>
             {headers.map((header) => (
-              <th
-                key={header}
-                scope="col"
-                style={headerStyle}
-              >
+              <th key={header} scope="col" style={headerStyle}>
                 {header}
               </th>
             ))}
@@ -186,6 +168,7 @@ export function PlanTabla({ ejercicios }: PlanTablaProps): JSX.Element {
           ))}
         </tbody>
       </table>
+
       <div style={footerStyle}>
         <div aria-live="polite" role="status">
           <strong>{resumen.completadas}</strong> de {resumen.ejercicios} ejercicios completados —{' '}
@@ -199,6 +182,7 @@ export function PlanTabla({ ejercicios }: PlanTablaProps): JSX.Element {
   )
 }
 
+/* ===== Estilos inline mínimos ===== */
 const captionStyle: CSSProperties = {
   textAlign: 'left',
   padding: '0.5rem 0.75rem',
@@ -264,3 +248,4 @@ const srOnlyStyle: CSSProperties = {
   whiteSpace: 'nowrap',
   border: 0
 }
+
